@@ -3,7 +3,7 @@ import { setOptions } from "@storybook/addon-options";
 import { addReadme } from 'storybook-readme';
 
 setOptions({
-  name: 'My website',
+  name: 'Write the Fucking Code',
   downPanelInRight: true
 });
 

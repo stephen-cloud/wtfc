@@ -49,7 +49,8 @@ const Layout = (props: LayoutProps) => {
           {/* Footer */}
           <Segment vertical style={{ position: "absolute", bottom: 0, width: "100%" }}>
             <Container textAlign="center">
-              <p>Created with <Icon color='red' name="heart" /> by Stephen Harrison</p>
+              <p>Made with <Icon color='red' name="heart" /> by Stephen Harrison</p>
+              <p>Who read <a href="https://www.theatlantic.com/family/archive/2018/08/guys-gender-neutral/568231/">The Problem With ‘Hey Guys’</a> and uses gender-neutral "guy" here. You can argue with me about my intent. But don't be that guy.</p>
             </Container>
           </Segment>
         </Sidebar.Pusher>
