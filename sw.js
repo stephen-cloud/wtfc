@@ -11,14 +11,13 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("workbox-v4.3.1/workbox-sw.js");
-workbox.setConfig({modulePathPrefix: "workbox-v4.3.1"});
+importScripts("workbox-v3.6.3/workbox-sw.js");
+workbox.setConfig({modulePathPrefix: "workbox-v3.6.3"});
 
 workbox.core.setCacheNameDetails({prefix: "gatsby-plugin-offline"});
 
-workbox.core.skipWaiting();
-
-workbox.core.clientsClaim();
+workbox.skipWaiting();
+workbox.clientsClaim();
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to
@@ -27,120 +26,51 @@ workbox.core.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-e243ced30ae755ffdb38.js"
+    "url": "webpack-runtime-325d9c6198839f9088dc.js"
   },
   {
-    "url": "framework-376edee25eb5f5cd8260.js"
+    "url": "framework-1a1efb3f5c798a012f4a.js"
   },
   {
-    "url": "app-44b3ab8bb3500155aef6.js"
+    "url": "app-b16c2e9714d0a22400ba.js"
+  },
+  {
+    "url": "component---node-modules-gatsby-plugin-offline-app-shell-js-04552f9a779bcd544711.js"
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "a62274b20c99ae2477009794a79d5bde"
+    "revision": "b53af8606d8b366ec45f1110f306c05c"
   },
   {
-    "url": "component---cache-caches-gatsby-plugin-offline-app-shell-js-5a1ee105f05b3144b807.js"
-  },
-  {
-    "url": "polyfill-e5eed695ab14f22c8faf.js"
+    "url": "polyfill-7e87dc9f0258bbfd3359.js"
   },
   {
     "url": "manifest.webmanifest",
-    "revision": "98a29c3e2a8e727da65e9df659021c2d"
+    "revision": "e35a3129052aef847e8e06d4a1999b59"
   }
 ].concat(self.__precacheManifest || []);
+workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
-workbox.routing.registerRoute(/(\.js$|\.css$|static\/)/, new workbox.strategies.CacheFirst(), 'GET');
-workbox.routing.registerRoute(/^https?:.*\page-data\/.*\/page-data\.json/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
-workbox.routing.registerRoute(/^https?:.*\/page-data\/app-data\.json/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
-workbox.routing.registerRoute(/^https?:.*\.(png|jpg|jpeg|webp|svg|gif|tiff|js|woff|woff2|json|css)$/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
-workbox.routing.registerRoute(/^https?:\/\/fonts\.googleapis\.com\/css/, new workbox.strategies.StaleWhileRevalidate(), 'GET');
+workbox.routing.registerRoute(/(\.js$|\.css$|static\/)/, workbox.strategies.cacheFirst(), 'GET');
+workbox.routing.registerRoute(/^https?:.*\page-data\/.*\/page-data\.json/, workbox.strategies.networkFirst(), 'GET');
+workbox.routing.registerRoute(/^https?:.*\.(png|jpg|jpeg|webp|svg|gif|tiff|js|woff|woff2|json|css)$/, workbox.strategies.staleWhileRevalidate(), 'GET');
+workbox.routing.registerRoute(/^https?:\/\/fonts\.googleapis\.com\/css/, workbox.strategies.staleWhileRevalidate(), 'GET');
 
 /* global importScripts, workbox, idbKeyval */
-importScripts(`idb-keyval-3.2.0-iife.min.js`)
+
+importScripts(`idb-keyval-iife.min.js`)
 
 const { NavigationRoute } = workbox.routing
 
-let lastNavigationRequest = null
-let offlineShellEnabled = true
-
-// prefer standard object syntax to support more browsers
-const MessageAPI = {
-  setPathResources: (event, { path, resources }) => {
-    event.waitUntil(idbKeyval.set(`resources:${path}`, resources))
-  },
-
-  clearPathResources: event => {
-    event.waitUntil(idbKeyval.clear())
-  },
-
-  enableOfflineShell: () => {
-    offlineShellEnabled = true
-  },
-
-  disableOfflineShell: () => {
-    offlineShellEnabled = false
-  },
-}
-
-self.addEventListener(`message`, event => {
-  const { gatsbyApi: api } = event.data
-  if (api) MessageAPI[api](event, event.data)
-})
-
-function handleAPIRequest({ event }) {
-  const { pathname } = new URL(event.request.url)
-
-  const params = pathname.match(/:(.+)/)[1]
-  const data = {}
-
-  if (params.includes(`=`)) {
-    params.split(`&`).forEach(param => {
-      const [key, val] = param.split(`=`)
-      data[key] = val
-    })
-  } else {
-    data.api = params
-  }
-
-  if (MessageAPI[data.api] !== undefined) {
-    MessageAPI[data.api]()
-  }
-
-  if (!data.redirect) {
-    return new Response()
-  }
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: lastNavigationRequest,
-    },
-  })
-}
-
 const navigationRoute = new NavigationRoute(async ({ event }) => {
-  // handle API requests separately to normal navigation requests, so do this
-  // check first
-  if (event.request.url.match(/\/.gatsby-plugin-offline:.+/)) {
-    return handleAPIRequest({ event })
-  }
-
-  if (!offlineShellEnabled) {
-    return await fetch(event.request)
-  }
-
-  lastNavigationRequest = event.request.url
-
   let { pathname } = new URL(event.request.url)
   pathname = pathname.replace(new RegExp(`^`), ``)
 
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`/app-44b3ab8bb3500155aef6.js`))) {
+  if (!resources || !(await caches.match(`/app-b16c2e9714d0a22400ba.js`))) {
     return await fetch(event.request)
   }
 
@@ -154,11 +84,22 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
   }
 
   const offlineShell = `/offline-plugin-app-shell-fallback/index.html`
-  const offlineShellWithKey = workbox.precaching.getCacheKeyForURL(offlineShell)
-  return await caches.match(offlineShellWithKey)
+  return await caches.match(offlineShell)
 })
 
 workbox.routing.registerRoute(navigationRoute)
 
-// this route is used when performing a non-navigation request (e.g. fetch)
-workbox.routing.registerRoute(/\/.gatsby-plugin-offline:.+/, handleAPIRequest)
+const messageApi = {
+  setPathResources(event, { path, resources }) {
+    event.waitUntil(idbKeyval.set(`resources:${path}`, resources))
+  },
+
+  clearPathResources(event) {
+    event.waitUntil(idbKeyval.clear())
+  },
+}
+
+self.addEventListener(`message`, event => {
+  const { gatsbyApi } = event.data
+  if (gatsbyApi) messageApi[gatsbyApi](event, event.data)
+})
